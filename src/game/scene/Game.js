@@ -1,3 +1,5 @@
+var player, cube, line, pixel, spaceKey, firstInput, newTime;
+
 
 BasicGame.Game = function (game) {
 
@@ -30,11 +32,122 @@ BasicGame.Game.prototype = {
 
 		//	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
 
+		// the ground 
+		// start from left 0, 
+		// half the height of the world
+		line = this.add.tileSprite(0,this.world.height / 2,this.world.width * 4, 0,  'line');	
+
+		// the player
+		player = this.add.sprite(this.world.width / 2, this.world.height / 2 - 40, 'player');	
+
+		// the obstacle
+		cube = this.add.sprite(this.world.width/ 2 + 150,this.world.height / 2 - player.height * 2, 'cube');	
+		
+		
+		// set new bounds of world x, y, x ,y bounds
+		this.world.setBounds(0,0,this.world.width * 4,this.world.height);
+
+		this.physics.arcade.TILE_BIAS = 40;
+
+		this.physics.enable([player,line,cube], Phaser.Physics.ARCADE);
+
+
+	  	line.collideWorldBounds = true;	
+		line.body.immovable = true;
+		line.allowGravity = false;
+		
+		player.collideWorldBounds = true;
+		player.body.gravity.y = 500;
+		// pixelize
+		player.smoothed = false;
+
+	
+					
+		// follow player with camera
+		this.camera.follow(player);
+
+
+
+
+		// print start text
+
+
+		/// if first input then start game
+
+		this.input.onDown.addOnce(this.startGame, this);
+
+
+
+		spaceKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+		spaceKey.onDown.add(this.jump, this);
+
+		console.log ("new time is most like undef ? :", newTime);
+		if (undefined == newTime) {
+			console.log("newTime undefined");
+			newTime = this.time.now + (this.rnd.realInRange(10,100) * 50 );
+		}
+
+
+		console.log("calling buttonJump function");
+		this.buttonJump();
+
+
 	},
 
 	update: function () {
 
+		// check collision
+
+
+		this.physics.arcade.collide(player, line);
+
+
 		//	Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
+			
+			
+			console.log("time left to newTime", this.time.now - newTime);
+				if (this.time.now > newTime) {
+			   		console.log("newtime is now");
+					this.updateNewTime();
+
+				}
+		
+
+			if (player.x > this.world.width + 1) 
+				console.log("next level");
+
+	},
+
+	updateNewTime: function () {
+
+		console.log("updating NewTime", newTime);
+	   player.tint = Math.random() * 0xffffff;
+	   newTime = this.time.now + (this.rnd.realInRange(10, 100) * 100);
+		console.log("new newTime : ", newTime);
+
+	},
+	jump: function() {
+		if (!player.body.onFloor() && player.body.velocity.y == 0)
+		player.body.velocity.y = -250;
+	
+
+
+
+	},
+
+	startGame: function () {
+		console.log("startGame function");
+		player.body.velocity.x += 150;
+	
+
+
+	},
+
+	restartGame: function () {
+	 this.state.start('Game');
+
+
 
 	},
 

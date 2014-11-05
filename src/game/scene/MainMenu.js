@@ -27,7 +27,9 @@ BasicGame.MainMenu.prototype = {
 	},
 	
 	onClick:function(){
-		console.log("CLICKED"+Math.random());
+		this.startGame();
+
+
 	},
 
 	update: function () {
